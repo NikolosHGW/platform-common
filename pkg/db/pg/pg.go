@@ -42,6 +42,15 @@ func (p *pg) SelectContext(ctx context.Context, dest any, query db.Query, args .
 	return p.dbc.SelectContext(ctx, dest, query.QueryRaw, args...)
 }
 
+func (p *pg) GetContext(ctx context.Context, dest any, query db.Query, args ...any) error {
+	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
+	if ok {
+		return tx.GetContext(ctx, dest, query.QueryRaw, args...)
+	}
+
+	return p.dbc.GetContext(ctx, dest, query.QueryRaw, args...)
+}
+
 func (p *pg) ExecContext(ctx context.Context, query db.Query, args ...any) (sql.Result, error) {
 	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
 	if ok {

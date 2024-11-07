@@ -40,15 +40,16 @@ type SQLExecer interface {
 
 // NamedExecer - интерфейс для работы с именованными запросами с помощью тегов в структурах.
 type NamedExecer interface {
-	NamedExecContext(ctx context.Context, query Query, arg interface{}) (sql.Result, error)
-	SelectContext(ctx context.Context, dest interface{}, query Query, args ...interface{}) error
+	NamedExecContext(ctx context.Context, query Query, arg any) (sql.Result, error)
+	SelectContext(ctx context.Context, dest any, query Query, args ...any) error
+	GetContext(ctx context.Context, dest any, query Query, args ...any) error
 }
 
 // QueryExecer - интерфейс для работы с обычными запросами.
 type QueryExecer interface {
 	ExecContext(ctx context.Context, query Query, args ...any) (sql.Result, error)
 	QueryContext(ctx context.Context, query Query, args ...any) (*sqlx.Rows, error)
-	QueryRowxContext(ctx context.Context, query Query, args ...interface{}) *sqlx.Row
+	QueryRowxContext(ctx context.Context, query Query, args ...any) *sqlx.Row
 }
 
 // Pinger - интерфейс для проверки соединения с БД.
