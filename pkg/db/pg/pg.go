@@ -24,40 +24,50 @@ func NewDB(dbc *sqlx.DB) db.DB {
 	return &pg{dbc: dbc}
 }
 
-func (p *pg) NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
+func (p *pg) NamedExecContext(ctx context.Context, query db.Query, arg any) (sql.Result, error) {
 	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
 	if ok {
-		return tx.NamedExecContext(ctx, query, arg)
+		return tx.NamedExecContext(ctx, query.QueryRaw, arg)
 	}
 
-	return p.dbc.NamedExecContext(ctx, query, arg)
+	return p.dbc.NamedExecContext(ctx, query.QueryRaw, arg)
 }
 
-func (p *pg) SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
+func (p *pg) SelectContext(ctx context.Context, dest any, query db.Query, args ...any) error {
 	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
 	if ok {
-		return tx.SelectContext(ctx, dest, query, args...)
+		return tx.SelectContext(ctx, dest, query.QueryRaw, args...)
 	}
 
-	return p.dbc.SelectContext(ctx, dest, query, args...)
+	return p.dbc.SelectContext(ctx, dest, query.QueryRaw, args...)
 }
 
-func (p *pg) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
+func (p *pg) ExecContext(ctx context.Context, query db.Query, args ...any) (sql.Result, error) {
 	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
 	if ok {
-		return tx.ExecContext(ctx, query, args...)
+		return tx.ExecContext(ctx, query.QueryRaw, args...)
 	}
 
-	return p.dbc.ExecContext(ctx, query, args...)
+	return p.dbc.ExecContext(ctx, query.QueryRaw, args...)
 }
 
-func (p *pg) QueryRowxContext(ctx context.Context, query string, args ...interface{}) *sqlx.Row {
+func (p *pg) QueryRowxContext(ctx context.Context, query db.Query, args ...any) *sqlx.Row {
 	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
 	if ok {
-		return tx.QueryRowxContext(ctx, query, args...)
+		return tx.QueryRowxContext(ctx, query.QueryRaw, args...)
 	}
 
-	return p.dbc.QueryRowxContext(ctx, query, args...)
+	return p.dbc.QueryRowxContext(ctx, query.QueryRaw, args...)
+}
+
+func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...any) (*sqlx.Rows, error) {
+
+	tx, ok := ctx.Value(TxKey).(sqlx.Tx)
+	if ok {
+		return tx.QueryxContext(ctx, q.QueryRaw, args...)
+	}
+
+	return p.dbc.QueryxContext(ctx, q.QueryRaw, args...)
 }
 
 func (p *pg) PingContext(ctx context.Context) error {
@@ -68,7 +78,7 @@ func (p *pg) Close() error {
 	return p.dbc.Close()
 }
 
-func (p *pg) BeginTxx(ctx context.Context, txOptions *sql.TxOptions) (*sqlx.Tx, error) {
+func (p *pg) BeginTx(ctx context.Context, txOptions *sql.TxOptions) (*sqlx.Tx, error) {
 
 	return p.dbc.BeginTxx(ctx, txOptions)
 }

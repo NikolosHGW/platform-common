@@ -19,7 +19,7 @@ func New(ctx context.Context, dsn string) (db.Client, error) {
 		return nil, fmt.Errorf("не удалось настроить соединение с бд постгрес: %w", err)
 	}
 
-	return &pgClient{masterDBC: db}, nil
+	return &pgClient{masterDBC: &pg{dbc: db}}, nil
 }
 
 func (pgc *pgClient) DB() db.DB {

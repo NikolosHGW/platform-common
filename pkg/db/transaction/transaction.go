@@ -27,7 +27,7 @@ func (m *manager) transaction(ctx context.Context, opts sql.TxOptions, fn db.Han
 		return fn(ctx)
 	}
 
-	tx, err = m.db.BeginTxx(ctx, &opts)
+	tx, err = m.db.BeginTx(ctx, &opts)
 	if err != nil {
 		err = fmt.Errorf("не удалось начать транзакцию: %w", err)
 	}
